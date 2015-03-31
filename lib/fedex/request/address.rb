@@ -8,6 +8,7 @@ module Fedex
       def initialize(credentials, options={})
         requires!(options, :address)
         @credentials = credentials
+        @debug       = !!options.delete(:debug)
         @address     = options[:address]
 
         @address[:address] ||= @address[:street]
@@ -15,7 +16,9 @@ module Fedex
 
       def process_request
         api_response = self.class.post(api_url, :body => build_xml)
-        puts api_response if @debug == true
+        puts "POST #{api_url}" if @debug == true
+        puts "> #{build_xml}" if @debug == true
+        puts "< #{api_response.to_xml}" if @debug == true
         response = parse_response(api_response)
         if success?(response)
           options = response[:address_validation_reply][:address_results][:proposed_address_details]
